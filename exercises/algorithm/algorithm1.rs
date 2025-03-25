@@ -9,12 +9,12 @@ use std::ptr::NonNull;
 use std::vec::*;
 
 #[derive(Debug)]
-struct Node<T> {
+struct Node<T: std::cmp::PartialOrd + Clone> {
     val: T,
     next: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Node<T> {
+impl<T: std::cmp::PartialOrd + Clone> Node<T> {
     fn new(t: T) -> Node<T> {
         Node {
             val: t,
@@ -23,19 +23,19 @@ impl<T> Node<T> {
     }
 }
 #[derive(Debug)]
-struct LinkedList<T> {
+struct LinkedList<T: std::cmp::PartialOrd + Clone> {
     length: u32,
     start: Option<NonNull<Node<T>>>,
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T: std::cmp::PartialOrd + Clone> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T: std::cmp::PartialOrd + Clone> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -69,18 +69,65 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+	pub fn merge(list_a: LinkedList<T>, list_b: LinkedList<T>) -> Self {
+        let mut result_linked_list = LinkedList::<T>::new();
+        
+        // Handle empty list cases
+        if list_a.start.is_none() {
+            return list_b;
         }
-	}
+        if list_b.start.is_none() {
+            return list_a;
+        }
+        
+        let mut node_1 = list_a.start;
+        let mut node_2 = list_b.start;
+        
+        // Compare first nodes safely and add the smaller one
+        unsafe {
+            if (*node_1.unwrap().as_ptr()).val <= (*node_2.unwrap().as_ptr()).val {
+                result_linked_list.add((*node_1.unwrap().as_ptr()).val.clone());
+                node_1 = (*node_1.unwrap().as_ptr()).next;
+            } else {
+                result_linked_list.add((*node_2.unwrap().as_ptr()).val.clone());
+                node_2 = (*node_2.unwrap().as_ptr()).next;
+            }
+        }
+        
+        // Process both lists while both have nodes
+        while node_1.is_some() && node_2.is_some() {
+            unsafe {
+                if (*node_1.unwrap().as_ptr()).val <=(*node_2.unwrap().as_ptr()).val {
+                    result_linked_list.add((*node_1.unwrap().as_ptr()).val.clone());
+                    node_1 = (*node_1.unwrap().as_ptr()).next;
+                } else {
+                    result_linked_list.add((*node_2.unwrap().as_ptr()).val.clone());
+                    node_2 = (*node_2.unwrap().as_ptr()).next;
+                }
+            }
+        }
+        
+        // Process remaining nodes in list 1
+        while let Some(node) = node_1 {
+            unsafe {
+                result_linked_list.add((*node.as_ptr()).val.clone());
+                node_1 = (*node.as_ptr()).next;
+            }
+        }
+        
+        // Process remaining nodes in list 2
+        while let Some(node) = node_2 {
+            unsafe {
+                result_linked_list.add((*node.as_ptr()).val.clone());
+                node_2 = (*node.as_ptr()).next;
+            }
+        }
+        
+        result_linked_list
+    }   
 }
 
-impl<T> Display for LinkedList<T>
+impl<T: std::cmp::PartialOrd + Clone> Display for LinkedList<T>
 where
     T: Display,
 {
@@ -92,7 +139,7 @@ where
     }
 }
 
-impl<T> Display for Node<T>
+impl<T: std::cmp::PartialOrd + Clone> Display for Node<T>
 where
     T: Display,
 {
@@ -170,4 +217,5 @@ mod tests {
 			assert_eq!(target_vec[i],*list_c.get(i as i32).unwrap());
 		}
 	}
+
 }
