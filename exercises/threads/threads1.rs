@@ -8,8 +8,6 @@
 // Execute `rustlings hint threads1` or use the `hint` watch subcommand for a
 // hint.
 
-// I AM NOT DONE
-
 use std::os::macos::raw::stat;
 use std::time::{Duration, Instant};
 use std::{hint, thread, vec};

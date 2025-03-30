@@ -12,5 +12,6 @@ mod macros {
         };
     }
 }
-my_macro!();
-fn main() {}
+fn main() {
+    my_macro!();
+}
