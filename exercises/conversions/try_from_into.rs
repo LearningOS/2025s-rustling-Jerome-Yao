@@ -9,7 +9,11 @@
 // Execute `rustlings hint try_from_into` or use the `hint` watch subcommand for
 // a hint.
 
-use std::convert::{TryFrom, TryInto};
+use std::{
+    convert::{TryFrom, TryInto},
+    error::Error,
+    hash::BuildHasherDefault,
+};
 
 #[derive(Debug, PartialEq)]
 struct Color {
@@ -27,8 +31,6 @@ enum IntoColorError {
     IntConversion,
 }
 
-// I AM NOT DONE
-
 // Your task is to complete this implementation and return an Ok result of inner
 // type Color. You need to create an implementation for a tuple of three
 // integers, an array of three integers, and a slice of integers.
@@ -41,6 +43,22 @@ enum IntoColorError {
 impl TryFrom<(i16, i16, i16)> for Color {
     type Error = IntoColorError;
     fn try_from(tuple: (i16, i16, i16)) -> Result<Self, Self::Error> {
+        let (red, green, blue) = tuple;
+        if red < 0 || red > 255 {
+            return Err(IntoColorError::IntConversion);
+        }
+        if green < 0 || green > 255 {
+            return Err(IntoColorError::IntConversion);
+        }
+        if blue < 0 || blue > 255 {
+            return Err(IntoColorError::IntConversion);
+        }
+
+        Ok(Color {
+            red: red.try_into().unwrap(),
+            green: green.try_into().unwrap(),
+            blue: blue.try_into().unwrap(),
+        })
     }
 }
 
@@ -48,6 +66,16 @@ impl TryFrom<(i16, i16, i16)> for Color {
 impl TryFrom<[i16; 3]> for Color {
     type Error = IntoColorError;
     fn try_from(arr: [i16; 3]) -> Result<Self, Self::Error> {
+        for a in arr {
+            if a < 0 || a > 255 {
+                return Err(IntoColorError::IntConversion);
+            }
+        }
+        Ok(Color {
+            red: arr[0].try_into().unwrap(),
+            green: arr[1].try_into().unwrap(),
+            blue: arr[2].try_into().unwrap(),
+        })
     }
 }
 
@@ -55,6 +83,20 @@ impl TryFrom<[i16; 3]> for Color {
 impl TryFrom<&[i16]> for Color {
     type Error = IntoColorError;
     fn try_from(slice: &[i16]) -> Result<Self, Self::Error> {
+        if slice.len() != 3 {
+            return Err(IntoColorError::BadLen);
+        }
+        for i in slice {
+            if *i < 0 || *i > 255 {
+                return Err(IntoColorError::IntConversion);
+            }
+        }
+        let mut v = slice.into_iter();
+        Ok(Color {
+            red: slice.get(0).unwrap().to_owned().try_into().unwrap(),
+            green: slice.get(1).unwrap().to_owned().try_into().unwrap(),
+            blue: slice.get(2).unwrap().to_owned().try_into().unwrap(),
+        })
     }
 }
 
