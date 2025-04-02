@@ -1,11 +1,11 @@
 /*
-	heap
-	This question requires you to implement a binary heap function
+    heap
+    This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
+use std::fmt::Debug;
 
 pub struct Heap<T>
 where
@@ -36,8 +36,28 @@ where
         self.len() == 0
     }
 
+    fn exch(&self, id1: usize, id2: usize) {}
     pub fn add(&mut self, value: T) {
-        //TODO
+        self.items.push(value);
+        self.count += 1;
+        let mut cur_parent = &self.parent_idx(self.count) + 0;
+        let mut cur = &self.count + 0;
+        if cur_parent == 0 {
+            return;
+        }
+        while (self.comparator)(
+            &self.items.get(cur).unwrap(),
+            &self.items.get(cur_parent).unwrap(),
+        ) {
+            &self.items.swap(cur, cur_parent);
+            let t = cur_parent.clone();
+            if self.parent_idx(cur_parent) != 0 {
+                cur_parent = self.parent_idx(cur_parent);
+                cur = t;
+            } else {
+                break;
+            }
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -57,8 +77,7 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        0
     }
 }
 
@@ -79,13 +98,18 @@ where
 
 impl<T> Iterator for Heap<T>
 where
-    T: Default,
+    T: Default + Debug,
 {
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        println!("{:?}", &self.items);
+        if self.is_empty() {
+            None
+        } else {
+            self.count -= 1;
+            Some(self.items.remove(1))
+        }
     }
 }
 

@@ -41,6 +41,11 @@ mod tests {
     fn classic_c_structs() {
         // TODO: Instantiate a classic c struct!
         let green = ColorClassicStruct::new(0, 255, 0);
+        let g = ColorClassicStruct {
+            red: 1,
+            green: 2,
+            blue: 3,
+        };
 
         assert_eq!(green.red, 0);
         assert_eq!(green.green, 255);
